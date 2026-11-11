@@ -136,6 +136,23 @@ function sb($method, $path, $body = null, $prefer = 'return=minimal') {
 
 class SupabaseSessionHandler implements SessionHandlerInterface {
 
+    private static ?bool $available = null;
+
+    public static function isAvailable(): bool {
+        if (self::$available !== null) {
+            return self::$available;
+        }
+
+        try {
+            sb('GET', 'app_sessions?select=session_id&limit=1');
+            return self::$available = true;
+        } catch (Throwable $error) {
+            // Keep the app usable with PHP's native session storage until the
+            // app_sessions table is created in Supabase.
+            return self::$available = false;
+        }
+    }
+
     public function open(string $path, string $name): bool {
         return true;
     }
@@ -222,11 +239,14 @@ class SupabaseSessionHandler implements SessionHandlerInterface {
 }
 
 
-// Register Supabase session handler.
-session_set_save_handler(
-    new SupabaseSessionHandler(),
-    true
-);
+// Use shared Supabase sessions when the table exists; otherwise fall back to
+// PHP's native session storage so a fresh deployment remains usable.
+if (SupabaseSessionHandler::isAvailable()) {
+    session_set_save_handler(
+        new SupabaseSessionHandler(),
+        true
+    );
+}
 
 session_start();
 

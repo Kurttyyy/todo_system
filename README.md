@@ -21,6 +21,17 @@ A PHP task manager that stores accounts and tasks in Supabase. It includes regis
 
 The app sends database requests from PHP and must use a server-side secret/service-role key because the tables have row-level security enabled. **Never put that key in HTML, JavaScript, or a public repository.** Do not use a publishable/anon key for this app.
 
+## Deploy to Vercel
+
+Vercel runs this PHP app in a Docker container using FrankenPHP. Its Container runtime is currently in beta. PHP sessions are stored in Supabase so logins continue working across container restarts and instances.
+
+1. If this Supabase project already has the app tables, run the updated [`supabase.sql`](./supabase.sql) in the Supabase SQL Editor to create the shared `app_sessions` table.
+2. In Vercel, import this GitHub repository. Vercel detects the root `Dockerfile` and uses the Container preset.
+3. Add `SUPABASE_URL` and `SUPABASE_SECRET_KEY` as environment variables for the Vercel environments you plan to use. Use a server-side Supabase secret/service-role key; do not expose it in the repository or browser code.
+4. Deploy or redeploy the project.
+
+The app requires these variables at runtime. A deployment without them will display a configuration error.
+
 ### XAMPP on Windows
 
 For Apache, add the following directives to the Apache server configuration (not to a public HTML or JavaScript file), replace the example values, and restart Apache:

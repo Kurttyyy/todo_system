@@ -1,7 +1,6 @@
 <?php
 // Supabase connection + shared helpers
 date_default_timezone_set('Asia/Manila');
-session_start();
 
 // Set these in the PHP hosting environment; never put the secret key in browser code.
 $SUPABASE_URL = getenv('SUPABASE_URL');
@@ -10,7 +9,7 @@ $SUPABASE_KEY = getenv('SUPABASE_SECRET_KEY');
 $SSL_VERIFY = true;
 
 // Sends a request to Supabase's REST API. Returns the decoded JSON rows.
-function sb($method, $path, $body = null) {
+function sb($method, $path, $body = null, $prefer = 'return=minimal') {
     global $SUPABASE_URL, $SUPABASE_KEY, $SSL_VERIFY;
     if (!$SUPABASE_URL || !$SUPABASE_KEY) {
         die('Set the SUPABASE_URL and SUPABASE_SECRET_KEY environment variables before using the app.');
@@ -26,7 +25,7 @@ function sb($method, $path, $body = null) {
             'apikey: ' . $SUPABASE_KEY,
             strpos($SUPABASE_KEY, 'sb_') === 0 ? null : 'Authorization: Bearer ' . $SUPABASE_KEY,
             'Content-Type: application/json',
-            'Prefer: return=minimal',
+            'Prefer: ' . $prefer,
         ]),
     ]);
     if ($body !== null) curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
@@ -39,6 +38,54 @@ function sb($method, $path, $body = null) {
     if ($code >= 400) throw new RuntimeException('Supabase request failed.', $code);
     return json_decode($res, true) ?: [];
 }
+
+class SupabaseSessionHandler implements SessionHandlerInterface {
+    public function open(string $path, string $name): bool {
+        return true;
+    }
+
+    public function close(): bool {
+        return true;
+    }
+
+    public function read(string $id): string|false {
+        $path = 'app_sessions?select=session_data&session_id=eq.' . rawurlencode($id)
+            . '&expires_at=gt.' . rawurlencode(gmdate('Y-m-d\TH:i:s\Z'));
+        $rows = sb('GET', $path);
+        if (!$rows) return '';
+
+        $data = base64_decode($rows[0]['session_data'], true);
+        if ($data === false) {
+            throw new UnexpectedValueException('Stored session data is invalid.');
+        }
+        return $data;
+    }
+
+    public function write(string $id, string $data): bool {
+        $lifetime = max(1, (int)ini_get('session.gc_maxlifetime'));
+        sb('POST', 'app_sessions?on_conflict=session_id', [[
+            'session_id' => $id,
+            'session_data' => base64_encode($data),
+            'expires_at' => gmdate('Y-m-d\TH:i:s\Z', time() + $lifetime),
+        ]], 'resolution=merge-duplicates,return=minimal');
+        return true;
+    }
+
+    public function destroy(string $id): bool {
+        sb('DELETE', 'app_sessions?session_id=eq.' . rawurlencode($id));
+        return true;
+    }
+
+    public function gc(int $max_lifetime): int|false {
+        $path = 'app_sessions?select=session_id&expires_at=lt.'
+            . rawurlencode(gmdate('Y-m-d\TH:i:s\Z'));
+        $rows = sb('DELETE', $path, null, 'return=representation');
+        return count($rows);
+    }
+}
+
+session_set_save_handler(new SupabaseSessionHandler(), true);
+session_start();
 
 function require_login() {
     if (empty($_SESSION['user_id'])) {

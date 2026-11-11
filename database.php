@@ -39,7 +39,14 @@ function sb($method, $path, $body = null, $prefer = 'return=minimal') {
         );
     }
 
-    $url = rtrim($SUPABASE_URL, '/') . '/rest/v1/' . $path;
+    // Accept either the Supabase project URL or a URL ending in /rest/v1.
+    // The API path is appended exactly once.
+    $baseUrl = preg_replace(
+        '#/rest/v1/?$#i',
+        '',
+        rtrim($SUPABASE_URL, '/')
+    );
+    $url = $baseUrl . '/rest/v1/' . ltrim($path, '/');
 
     $ch = curl_init($url);
 

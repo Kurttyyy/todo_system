@@ -1,4 +1,3 @@
-
 <?php
 // Supabase connection + shared helpers
 date_default_timezone_set('Asia/Manila');

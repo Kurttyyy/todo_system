@@ -42,16 +42,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($username === '' || $password === '') {
         $errors[] = 'Please enter your username and password.';
     } else {
-        $rows = sb('GET', 'users?select=*&limit=1&username=eq.' . rawurlencode($username));
-        $u = $rows[0] ?? null;
-        if ($u && password_verify($password, $u['password'])) {
-            session_regenerate_id(true);
-            $_SESSION['user_id'] = $u['user_id'];
-            $_SESSION['username'] = $u['username'];
-            header('Location: dashboard.php');
-            exit;
+        try {
+            $rows = sb('GET', 'users?select=*&limit=1&username=eq.' . rawurlencode($username));
+            $u = $rows[0] ?? null;
+            if ($u && password_verify($password, $u['password'])) {
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = $u['user_id'];
+                $_SESSION['username'] = $u['username'];
+                header('Location: dashboard.php');
+                exit;
+            }
+            $errors[] = 'Invalid username or password.';
+        } catch (RuntimeException $error) {
+            error_log('Login database check failed: ' . $error->getMessage());
+            $errors[] = (int) $error->getCode() === 404
+                ? 'Database tables are not set up yet. Run supabase.sql in the Supabase SQL Editor.'
+                : 'We could not connect to the database right now. Please try again later.';
         }
-        $errors[] = 'Invalid username or password.';
     }
 }
 ?>

@@ -1,13 +1,20 @@
-FROM dunglas/frankenphp:1-php8.4-alpine
 
-WORKDIR /app
-RUN install-php-extensions curl mbstring \
-    && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+FROM php:8.4-apache
 
-COPY Caddyfile /etc/caddy/Caddyfile
-COPY *.php /app/public/
-COPY css/ /app/public/css/
-COPY js/ /app/public/js/
+RUN apt-get update && apt-get install -y \
+    libcurl4-openssl-dev \
+    libonig-dev \
+    && docker-php-ext-install curl mbstring \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV PORT=80
-CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+WORKDIR /var/www/html
+
+RUN a2enmod rewrite
+
+COPY *.php /var/www/html/
+COPY css/ /var/www/html/css/
+COPY js/ /var/www/html/js/
+
+EXPOSE 10000
+
+CMD ["sh", "-c", "sed -i \"s/Listen 80/Listen ${PORT:-10000}/\" /etc/apache2/ports.conf && sed -i \"s/:80>/:${PORT:-10000}>/\" /etc/apache2/sites-available/000-default.conf && apache2-foreground"]

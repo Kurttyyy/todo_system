@@ -18,6 +18,13 @@ create table if not exists tasks (
   created_at timestamptz default now()
 );
 
+create table if not exists app_sessions (
+  session_id text primary key,
+  session_data text not null,
+  expires_at timestamptz not null
+);
+create index if not exists app_sessions_expires_at_idx on app_sessions (expires_at);
+
 -- Backfill tasks from the previous single-user schema, then require an owner.
 alter table tasks add column if not exists user_id bigint references users(user_id) on delete cascade;
 update tasks
@@ -30,3 +37,4 @@ alter table tasks alter column user_id set not null;
 -- server-side Supabase secret key, which bypasses this.
 alter table users enable row level security;
 alter table tasks enable row level security;
+alter table app_sessions enable row level security;

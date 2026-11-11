@@ -3,8 +3,8 @@
 date_default_timezone_set('Asia/Manila');
 
 // Set these in the PHP hosting environment; never put the secret key in browser code.
-$SUPABASE_URL = getenv('SUPABASE_URL');
-$SUPABASE_KEY = getenv('SUPABASE_SECRET_KEY');
+$SUPABASE_URL = trim((string) getenv('SUPABASE_URL'));
+$SUPABASE_KEY = trim((string) getenv('SUPABASE_SECRET_KEY'));
 // Set to false ONLY if you get an "SSL certificate problem" error on XAMPP
 $SSL_VERIFY = true;
 
@@ -14,7 +14,18 @@ function sb($method, $path, $body = null, $prefer = 'return=minimal') {
     if (!$SUPABASE_URL || !$SUPABASE_KEY) {
         die('Set the SUPABASE_URL and SUPABASE_SECRET_KEY environment variables before using the app.');
     }
+    $urlParts = parse_url($SUPABASE_URL);
+    if ($urlParts === false || !in_array($urlParts['scheme'] ?? '', ['https', 'http'], true) || empty($urlParts['host'])) {
+        throw new RuntimeException('SUPABASE_URL must be the project URL, such as https://your-project.supabase.co.');
+    }
+    if (preg_match('/[\r\n]/', $SUPABASE_KEY)) {
+        throw new RuntimeException('SUPABASE_SECRET_KEY contains an invalid line break. Re-enter the key without quotes or extra lines.');
+    }
+
     $ch = curl_init(rtrim($SUPABASE_URL, '/') . '/rest/v1/' . $path);
+    if ($ch === false) {
+        throw new RuntimeException('Could not initialize the Supabase connection.');
+    }
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CUSTOMREQUEST  => $method,

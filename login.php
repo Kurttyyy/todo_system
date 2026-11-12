@@ -3,6 +3,7 @@ require 'database.php';
 $mode = ($_GET['mode'] ?? '') === 'register' ? 'register' : 'login';
 $errors = [];
 $username = '';
+$appUrl = 'https://todo-system-xmck.onrender.com';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
@@ -100,10 +101,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php endif; ?>
       <button class="btn btn-primary btn-block w-100"><?= $mode === 'register' ? 'Create account' : 'Sign in' ?></button>
     </form>
+    <?php if ($mode === 'login'): ?>
+    <button type="button" class="btn btn-outline qr-trigger" id="show-qr" aria-haspopup="dialog" aria-controls="qr-dialog">▣ Show QR for easy access</button>
+    <?php endif; ?>
     <p class="center muted small" style="margin:18px 0 0">
       <?= $mode === 'register' ? 'Already have an account? <a href="login.php">Sign in</a>' : 'New here? <a href="login.php?mode=register">Create an account</a>' ?>
     </p>
   </div>
 </div>
+<?php if ($mode === 'login'): ?>
+<div class="qr-dialog" id="qr-dialog" role="dialog" aria-modal="true" aria-labelledby="qr-title" hidden>
+  <div class="qr-dialog-card">
+    <button type="button" class="qr-close" id="close-qr" aria-label="Close QR code">&times;</button>
+    <h2 id="qr-title">Open To-Do List</h2>
+    <p class="muted small">Scan this QR code using your phone camera.</p>
+    <img class="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=<?= rawurlencode($appUrl) ?>" alt="QR code for To-Do List">
+    <p class="qr-url"><?= e($appUrl) ?></p>
+  </div>
+</div>
+<?php endif; ?>
 </body>
 </html>

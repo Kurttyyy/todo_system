@@ -22,3 +22,28 @@ document.addEventListener('submit', (event) => {
     event.preventDefault();
   }
 });
+
+const qrDialog = document.getElementById('qr-dialog');
+const showQr = document.getElementById('show-qr');
+const closeQr = document.getElementById('close-qr');
+
+if (qrDialog && showQr && closeQr) {
+  const hideQr = () => {
+    qrDialog.hidden = true;
+    document.body.classList.remove('modal-open');
+    showQr.focus();
+  };
+
+  showQr.addEventListener('click', () => {
+    qrDialog.hidden = false;
+    document.body.classList.add('modal-open');
+    closeQr.focus();
+  });
+  closeQr.addEventListener('click', hideQr);
+  qrDialog.addEventListener('click', (event) => {
+    if (event.target === qrDialog) hideQr();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !qrDialog.hidden) hideQr();
+  });
+}

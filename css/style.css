@@ -213,7 +213,7 @@ body.modal-open { overflow: hidden; }
   .task-panel tbody td.task-description { grid-column: 1 / -1; }
   .task-panel tbody td[data-label="Due date"],
   .task-panel tbody td[data-label="Status"] { grid-column: 1 / -1; }
-  .task-panel tbody td.actions { grid-column: 1 / -1; display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 8px; padding-top: 10px; border-top: 1px solid #f1f5f9; }
+  .task-panel tbody td.actions { grid-column: 1 / -1; display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 8px; padding-top: 10px; border-top: 1px solid #f1f5f9; text-align: left; }
   .task-panel tbody td.actions::before { grid-column: 1; align-self: center; }
   .task-panel tbody td.actions .action-buttons { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
   .task-panel tbody td.actions form { margin: 0; }

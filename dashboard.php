@@ -102,11 +102,11 @@ include 'header.php';
             <span>Try changing your search or add a new task.</span>
           </td></tr>
         <?php endif; ?>
-        <?php foreach ($tasks as $t):
+        <?php foreach ($tasks as $index => $t):
             $done = $t['status'] === 'Completed';
             $overdue = !$done && $t['due_date'] < $today; ?>
           <tr>
-            <td data-label="#" class="muted task-id"><?= (int)$t['task_id'] ?></td>
+            <td data-label="#" class="muted task-id"><?= $index + 1 ?></td>
             <td data-label="Task" class="<?= $done ? 'done' : 'bold' ?> task-title"><?= e($t['task_title']) ?></td>
             <td data-label="Description" class="muted small task-description"><?= e($t['description']) ?></td>
             <td data-label="Due date" class="<?= $overdue ? 'due-bad' : '' ?>">

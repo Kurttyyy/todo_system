@@ -115,17 +115,19 @@ include 'header.php';
             </td>
             <td data-label="Status"><span class="badge <?= $done ? 'badge-ok' : 'badge-warn' ?>"><?= e($t['status']) ?></span></td>
             <td data-label="Actions" class="actions">
-              <form action="toggle.php" method="post">
-                <?= csrf_field() ?>
-                <input type="hidden" name="id" value="<?= (int)$t['task_id'] ?>">
-                <button class="btn btn-sm <?= $done ? '' : 'btn-success' ?>"><?= $done ? 'Mark Pending' : 'Mark Done' ?></button>
-              </form>
-              <a href="edit.php?id=<?= (int)$t['task_id'] ?>" class="btn btn-sm btn-outline">Edit</a>
-              <form action="delete.php" method="post" data-confirm="Delete this task? This cannot be undone.">
-                <?= csrf_field() ?>
-                <input type="hidden" name="id" value="<?= (int)$t['task_id'] ?>">
-                <button class="btn btn-sm btn-danger">Delete</button>
-              </form>
+              <div class="action-buttons">
+                <form action="toggle.php" method="post">
+                  <?= csrf_field() ?>
+                  <input type="hidden" name="id" value="<?= (int)$t['task_id'] ?>">
+                  <button class="btn btn-sm <?= $done ? '' : 'btn-success' ?>"><?= $done ? 'Mark Pending' : 'Mark Done' ?></button>
+                </form>
+                <a href="edit.php?id=<?= (int)$t['task_id'] ?>" class="btn btn-sm btn-outline">Edit</a>
+                <form action="delete.php" method="post" data-confirm="Delete this task? This cannot be undone.">
+                  <?= csrf_field() ?>
+                  <input type="hidden" name="id" value="<?= (int)$t['task_id'] ?>">
+                  <button class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              </div>
             </td>
           </tr>
         <?php endforeach; ?>

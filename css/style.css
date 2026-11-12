@@ -179,6 +179,30 @@ td.actions form { display: inline; }
   .task-panel .toolbar form { display: grid; grid-template-columns: 1fr auto; }
   .task-panel .toolbar input[type="search"] { width: 100%; grid-column: 1 / -1; }
   .task-panel .toolbar select { width: 100%; }
+
+  /* Turn task rows into compact cards so status and actions stay visible on phones. */
+  .task-panel .table-wrap { overflow: visible; }
+  .task-panel table,
+  .task-panel tbody { display: block; width: 100%; }
+  .task-panel table { min-width: 0; }
+  .task-panel thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .task-panel tbody tr { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .task-panel tbody tr:last-child { border-bottom: 0; }
+  .task-panel tbody tr:not(:has(.task-title)) { display: block; }
+  .task-panel tbody td { display: flex; align-items: flex-start; gap: 8px; min-width: 0; padding: 7px 0; border: 0; }
+  .task-panel tbody td::before { content: attr(data-label); flex: 0 0 76px; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .35px; }
+  .task-panel tbody td.task-id { display: none; }
+  .task-panel tbody td.task-title { grid-column: 1 / -1; padding-top: 3px; font-size: 16px; }
+  .task-panel tbody td.task-title::before { content: none; }
+  .task-panel tbody td.task-description { grid-column: 1 / -1; }
+  .task-panel tbody td.actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-top: 10px; border-top: 1px solid #f1f5f9; }
+  .task-panel tbody td.actions::before { align-self: center; }
+  .task-panel tbody td.actions form { margin: 0; }
+  .task-panel tbody td.actions .btn { padding: 7px 9px; font-size: 12px; }
+  .task-panel tbody td[data-label="Status"] { align-items: center; }
+  .task-panel tbody td[data-label="Status"]::before { align-self: center; }
+  .task-panel tbody td[data-label="Due date"] { align-items: center; }
+  .task-panel tbody td[data-label="Due date"] .badge-bad { margin-left: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

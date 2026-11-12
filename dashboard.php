@@ -106,15 +106,15 @@ include 'header.php';
             $done = $t['status'] === 'Completed';
             $overdue = !$done && $t['due_date'] < $today; ?>
           <tr>
-            <td class="muted"><?= (int)$t['task_id'] ?></td>
-            <td class="<?= $done ? 'done' : 'bold' ?>"><?= e($t['task_title']) ?></td>
-            <td class="muted small"><?= e($t['description']) ?></td>
-            <td class="<?= $overdue ? 'due-bad' : '' ?>">
+            <td data-label="#" class="muted task-id"><?= (int)$t['task_id'] ?></td>
+            <td data-label="Task" class="<?= $done ? 'done' : 'bold' ?> task-title"><?= e($t['task_title']) ?></td>
+            <td data-label="Description" class="muted small task-description"><?= e($t['description']) ?></td>
+            <td data-label="Due date" class="<?= $overdue ? 'due-bad' : '' ?>">
               <?= e(date('M d, Y', strtotime($t['due_date']))) ?>
               <?php if ($overdue): ?><span class="badge badge-bad">Overdue</span><?php endif; ?>
             </td>
-            <td><span class="badge <?= $done ? 'badge-ok' : 'badge-warn' ?>"><?= e($t['status']) ?></span></td>
-            <td class="actions">
+            <td data-label="Status"><span class="badge <?= $done ? 'badge-ok' : 'badge-warn' ?>"><?= e($t['status']) ?></span></td>
+            <td data-label="Actions" class="actions">
               <form action="toggle.php" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" value="<?= (int)$t['task_id'] ?>">
